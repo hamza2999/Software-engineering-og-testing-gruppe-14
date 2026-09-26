@@ -1,0 +1,95 @@
+.groups-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.groups-page h1,
+.group-card h2,
+.group-detail h1 {
+  color: #642536;
+}
+
+.group-search-label {
+  display: block;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.group-search {
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  border: 1px solid #d8bfc5;
+  border-radius: 4px;
+  padding: 12px;
+  font: inherit;
+}
+
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.group-card {
+  border: 1px solid #d8bfc5;
+  border-radius: 4px;
+  background-color: #fffafa;
+  padding: 20px;
+}
+
+.group-card h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+
+.group-region {
+  color: #7a3045;
+  font-weight: bold;
+}
+
+.group-button {
+  display: inline-block;
+  border: 1px solid #7a3045;
+  border-radius: 4px;
+  background-color: #7a3045;
+  color: #ffffff;
+  padding: 10px 14px;
+  text-decoration: none;
+}
+
+.group-button:hover,
+.group-button:focus-visible {
+  background-color: #642536;
+}
+
+.group-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.group-detail > a {
+  color: #642536;
+}
+
+.group-detail-content {
+  min-height: 220px;
+  border: 1px solid #eadfe1;
+  margin-top: 24px;
+  padding: 24px;
+}
+
+@media (max-width: 800px) {
+  .groups-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .groups-grid {
+    grid-template-columns: 1fr;
+  }
+}
