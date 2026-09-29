@@ -1,4 +1,4 @@
-.counter {
+.count-button {
   font-size: 16px;
   padding: 5px 10px;
   border-radius: 5px;
@@ -20,25 +20,25 @@
 .hero {
   position: relative;
 
-  .base,
-  .framework,
-  .vite {
+  .hero-image,
+  .react-logo,
+  .vite-logo {
     inset-inline: 0;
     margin: 0 auto;
   }
 
-  .base {
+  .hero-image {
     width: 170px;
     position: relative;
     z-index: 0;
   }
 
-  .framework,
-  .vite {
+  .react-logo,
+  .vite-logo {
     position: absolute;
   }
 
-  .framework {
+  .react-logo {
     z-index: 1;
     top: 34px;
     height: 28px;
@@ -46,7 +46,7 @@
       scale(1.4);
   }
 
-  .vite {
+  .vite-logo {
     z-index: 0;
     top: 107px;
     height: 26px;
@@ -56,7 +56,7 @@
   }
 }
 
-#center {
+.intro {
   display: flex;
   flex-direction: column;
   gap: 25px;
@@ -70,7 +70,7 @@
   }
 }
 
-#next-steps {
+.resources {
   display: flex;
   border-top: 1px solid var(--border);
   text-align: left;
@@ -83,7 +83,7 @@
     }
   }
 
-  .icon {
+  .section-icon {
     margin-bottom: 16px;
     width: 22px;
     height: 22px;
@@ -95,7 +95,7 @@
   }
 }
 
-#docs {
+.documentation {
   border-right: 1px solid var(--border);
 
   @media (max-width: 1024px) {
@@ -104,14 +104,14 @@
   }
 }
 
-#next-steps ul {
+.resources ul {
   list-style: none;
   padding: 0;
   display: flex;
   gap: 8px;
   margin: 32px 0 0;
 
-  .logo {
+  .vite-icon {
     height: 18px;
   }
 
@@ -130,7 +130,7 @@
     &:hover {
       box-shadow: var(--shadow);
     }
-    .button-icon {
+    .link-icon {
       height: 18px;
       width: 18px;
     }
@@ -153,7 +153,7 @@
   }
 }
 
-#spacer {
+.bottom-space {
   height: 88px;
   border-top: 1px solid var(--border);
   @media (max-width: 1024px) {
@@ -161,7 +161,7 @@
   }
 }
 
-.ticks {
+.divider {
   position: relative;
   width: 100%;
 
