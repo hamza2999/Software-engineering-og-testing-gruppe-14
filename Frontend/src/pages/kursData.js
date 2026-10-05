@@ -21,5 +21,5 @@ const kurs = [
     image: null,
   },
 ]
-
+// placeholders
 export default kurs
