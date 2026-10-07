@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     kurs: Kur;
+    nyheter: Nyheter;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     kurs: KursSelect<false> | KursSelect<true>;
+    nyheter: NyheterSelect<false> | NyheterSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -179,6 +181,17 @@ export interface Kur {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nyheter".
+ */
+export interface Nyheter {
+  id: number;
+  title: string;
+  content: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -212,6 +225,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'kurs';
         value: number | Kur;
+      } | null)
+    | ({
+        relationTo: 'nyheter';
+        value: number | Nyheter;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -305,6 +322,16 @@ export interface KursSelect<T extends boolean = true> {
   date?: T;
   description?: T;
   image?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nyheter_select".
+ */
+export interface NyheterSelect<T extends boolean = true> {
+  title?: T;
+  content?: T;
   updatedAt?: T;
   createdAt?: T;
 }
