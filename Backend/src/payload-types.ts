@@ -170,7 +170,10 @@ export interface Media {
  */
 export interface Kur {
   id: number;
-  navn: string;
+  title: string;
+  date: string;
+  description: string;
+  image?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -298,7 +301,10 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "kurs_select".
  */
 export interface KursSelect<T extends boolean = true> {
-  navn?: T;
+  title?: T;
+  date?: T;
+  description?: T;
+  image?: T;
   updatedAt?: T;
   createdAt?: T;
 }
