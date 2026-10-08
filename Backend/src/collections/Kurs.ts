@@ -35,5 +35,12 @@ export const Kurs: CollectionConfig = {
       label: 'Bildelenke',
       type: 'text',
     },
+
+    {
+        name: 'lokallag',
+        label: 'Lokallag',
+        type: 'relationship',
+        relationTo: 'lokallag',
+    },
   ],
 }

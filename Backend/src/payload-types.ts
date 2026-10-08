@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     kurs: Kur;
     nyheter: Nyheter;
+    lokallag: Lokallag;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +83,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     kurs: KursSelect<false> | KursSelect<true>;
     nyheter: NyheterSelect<false> | NyheterSelect<true>;
+    lokallag: LokallagSelect<false> | LokallagSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -176,6 +178,22 @@ export interface Kur {
   date: string;
   description: string;
   image?: string | null;
+  lokallag?: (number | null) | Lokallag;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lokallag".
+ */
+export interface Lokallag {
+  id: number;
+  name: string;
+  region: string;
+  description: string;
+  address: string;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -187,6 +205,7 @@ export interface Nyheter {
   id: number;
   title: string;
   content: string;
+  lokallag?: (number | null) | Lokallag;
   updatedAt: string;
   createdAt: string;
 }
@@ -229,6 +248,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'nyheter';
         value: number | Nyheter;
+      } | null)
+    | ({
+        relationTo: 'lokallag';
+        value: number | Lokallag;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -322,6 +345,7 @@ export interface KursSelect<T extends boolean = true> {
   date?: T;
   description?: T;
   image?: T;
+  lokallag?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -332,6 +356,21 @@ export interface KursSelect<T extends boolean = true> {
 export interface NyheterSelect<T extends boolean = true> {
   title?: T;
   content?: T;
+  lokallag?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lokallag_select".
+ */
+export interface LokallagSelect<T extends boolean = true> {
+  name?: T;
+  region?: T;
+  description?: T;
+  address?: T;
+  contactEmail?: T;
+  contactPhone?: T;
   updatedAt?: T;
   createdAt?: T;
 }
