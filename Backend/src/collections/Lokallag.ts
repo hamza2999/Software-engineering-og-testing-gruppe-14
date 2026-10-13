@@ -1,55 +1,58 @@
-import type { CollectionConfig } from "payload";
+import type { CollectionConfig } from 'payload'
+import { lokallagOverviewEndpoint } from '../modules/lokallag/http/lokallagEndpoints'
 
 export const Lokallag: CollectionConfig = {
-    slug: 'lokallag',
+  slug: 'lokallag',
 
-    admin: {
-        useAsTitle: 'name',
+  endpoints: [lokallagOverviewEndpoint],
+
+  admin: {
+    useAsTitle: 'name',
+  },
+
+  access: {
+    read: () => true,
+  },
+
+  fields: [
+    {
+      name: 'name',
+      label: 'Navn',
+      type: 'text',
+      required: true,
     },
-    
-    access: {
-        read: () => true,
+
+    {
+      name: 'region',
+      label: 'Fylke eller region',
+      type: 'text',
+      required: true,
     },
 
-    fields: [
-        {
-            name: 'name',
-            label: 'Navn',
-            type: 'text',
-            required: true,
-        },
+    {
+      name: 'description',
+      label: 'Beskrivelse',
+      type: 'textarea',
+      required: true,
+    },
 
-        {
-            name: 'region',
-            label: 'Fylke eller region',
-            type: 'text',
-            required: true,
-        },
+    {
+      name: 'address',
+      label: 'Adresse',
+      type: 'text',
+      required: true,
+    },
 
-        {
-            name: 'description',
-            label: 'Beskrivelse',
-            type: 'textarea',
-            required: true,
-        },
+    {
+      name: 'contactEmail',
+      label: 'Kontakt',
+      type: 'email',
+    },
 
-        {
-            name: 'address',
-            label: 'Adresse',
-            type: 'text',
-            required: true,
-        },
-
-        {
-            name: 'contactEmail',
-            label: 'Kontakt',
-            type: 'email',
-        },
-
-        {
-            name: 'contactPhone',
-            label: 'Telefonnummer',
-            type: 'text',
-        },
-    ],
+    {
+      name: 'contactPhone',
+      label: 'Telefonnummer',
+      type: 'text',
+    },
+  ],
 }
