@@ -48,3 +48,7 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Lokal SQlite database og dems journal filer
+*.db
+*.db-*
