@@ -17,7 +17,8 @@
     "test:unit": "vitest run --config ./vitest.unit.config.mts",
     "test:lokallag": "vitest run --config ./vitest.config.mts tests/int/lokallag.int.spec.ts",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "db:migrate:create": "npm run payload -- migrate:create"
   },
   "dependencies": {
     "@payloadcms/next": "3.90.2",
