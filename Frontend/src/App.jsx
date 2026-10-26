@@ -9,6 +9,7 @@ import Pamelding from './pages/Pamelding'
 import Kontakt from './pages/Kontakt'
 import Medlemsgrupper from './pages/Medlemsgrupper'
 import Medlemsgruppe from './pages/Medlemsgruppe'
+import Login from './pages/Login'
 import './App.css'
 
 
@@ -32,6 +33,7 @@ function App() {
         <Route path="/kontakt" element={<Kontakt />} />
         <Route path="/medlemsgrupper" element={<Medlemsgrupper />} />
         <Route path="/medlemsgrupper/:id" element={<Medlemsgruppe />} />
+        <Route path="/logg-inn" element={<Login />} />
         <Route path="*" element={<Hjem />} />
       </Routes>
       <Footer />

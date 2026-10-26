@@ -11,6 +11,7 @@ const pages = [
   { name: 'Kurs', path: '/kurs' },
   { name: 'Medlemsgrupper', path: '/medlemsgrupper' },
   { name: 'Nyheter', path: '/nyheter' },
+  { name: 'Logg inn', path: '/logg-inn' },
 ]
 
 function Header() {
