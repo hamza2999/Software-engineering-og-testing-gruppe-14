@@ -81,6 +81,25 @@ if (eksisterendeKurs.docs.length === 0) {
   console.log(kurs.title, 'tilhører lokallag med ID:', lag.id)
 }
 
+for (const nyhet of nyheterData) {
+    const lagResultat = await payload.find({
+      collection: 'lokallag',
+    where: {
+      name: {
+        equals: nyhet.lokallagName,
+      },
+    },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+    })
+    const lag = lagResultat.docs[0]
+
+    if (!lag) {
+    throw new Error(`Fant ikke lokallaget: ${nyhet.lokallagName}`)
+  }
+  }
+
     const result = await payload.count({
         collection: 'lokallag',
         overrideAccess: false,
