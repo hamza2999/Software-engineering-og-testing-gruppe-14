@@ -117,6 +117,13 @@ try {
     }
   }
 
+  const nyheterResultat = await payload.count({
+    collection: 'nyheter',
+    overrideAccess: false,
+  })
+
+  console.log('Nyheter i databasen: ', nyheterResultat.totalDocs)
+
   const result = await payload.count({
     collection: 'lokallag',
     overrideAccess: false,
