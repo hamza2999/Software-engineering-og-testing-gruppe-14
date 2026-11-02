@@ -103,6 +103,18 @@ try {
       depth: 0,
       overrideAccess: true,
     })
+
+    if (eksisterendeNyhet.docs.length === 0) {
+      await payload.create({
+        collection: 'nyheter',
+        data: {
+          title: nyhet.title,
+          content: nyhet.content,
+          lokallag: lag.id,
+        },
+        overrideAccess: true,
+      })
+    }
   }
 
   const result = await payload.count({
