@@ -1,0 +1,11 @@
+{
+  "name": "software-engineering-og-testing-gruppe-14",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix Frontend run dev",
+    "dev:frontend": "npm --prefix Frontend run dev",
+    "dev:backend": "npm --prefix Backend run dev",
+    "install:frontend": "npm --prefix Frontend install",
+    "install:backend": "npm --prefix Backend install"
+  }
+}
