@@ -1,36 +1,69 @@
-import type { CollectionConfig } from "payload";
+import type { CollectionConfig, Where } from 'payload'
 
 export const Nyheter: CollectionConfig = {
-    slug: 'nyheter',
+  slug: 'nyheter',
 
-    admin: {
-        useAsTitle: 'title',
+  versions: {
+    drafts: true,
+  },
+
+  admin: {
+    useAsTitle: 'title',
+  },
+
+  access: {
+    read: ({ req }): boolean | Where => {
+      if (req.user) {
+        return true
+      }
+
+      return {
+        and: [
+          {
+            _status: {
+              equals: 'published',
+            },
+          },
+          {
+            publishedAt: {
+              less_than_equal: new Date().toISOString(),
+            },
+          },
+        ],
+      }
+    },
+  },
+
+  fields: [
+    {
+      name: 'title',
+      label: 'Tittel',
+      type: 'text',
+      required: true,
     },
 
-    access: {
-        read: () => true,
+    {
+      name: 'publishedAt',
+      label: 'Publisert dato',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+      },
     },
 
-    fields: [
-        {
-            name: 'title',
-            label: 'Tittel',
-            type: 'text',
-            required: true,
-        },
-        
-        {
-            name: 'content',
-            label: 'Innhold',
-            type: 'textarea',
-            required: true,
-        },
+    {
+      name: 'content',
+      label: 'Innhold',
+      type: 'textarea',
+      required: true,
+    },
 
-        {
-        name: 'lokallag',
-        label: 'Lokallag',
-        type: 'relationship',
-        relationTo: 'lokallag',
-        }, 
-    ],
+    {
+      name: 'lokallag',
+      label: 'Lokallag',
+      type: 'relationship',
+      relationTo: 'lokallag',
+    },
+  ],
 }
