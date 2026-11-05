@@ -34,6 +34,24 @@ export const Nyheter: CollectionConfig = {
     },
   },
 
+  hooks: {
+    beforeChange: [
+      ({ data, originalDoc }) => {
+        const status = data._status ?? originalDoc?._status
+
+        if (originalDoc?.publishedAt) {
+          data.publishedAt = originalDoc.publishedAt
+        } else if (status === 'published') {
+          data.publishedAt = new Date().toISOString()
+        } else {
+          data.publishedAt = null
+        }
+
+        return data
+      },
+    ],
+  },
+
   fields: [
     {
       name: 'title',
