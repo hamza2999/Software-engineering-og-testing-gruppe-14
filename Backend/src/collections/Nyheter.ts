@@ -1,7 +1,24 @@
-import type { CollectionConfig, Where } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
+
+import { nyhetDetailsEndpoint, nyhetOverviewEndpoint } from '../modules/nyheter/http/nyhetEndpoints'
+import type { Nyheter as NyhetDocument } from '../payload-types'
+
+const setPublishedAt: CollectionBeforeChangeHook<NyhetDocument> = ({ data, originalDoc }) => {
+  const status = data._status ?? originalDoc?._status
+  if (originalDoc?.publishedAt) {
+    data.publishedAt = originalDoc.publishedAt
+  } else if (status === 'published') {
+    data.publishedAt = new Date().toISOString()
+  } else {
+    data.publishedAt = null
+  }
+  return data
+}
 
 export const Nyheter: CollectionConfig = {
   slug: 'nyheter',
+
+  endpoints: [nyhetOverviewEndpoint, nyhetDetailsEndpoint],
 
   versions: {
     drafts: true,
@@ -12,6 +29,7 @@ export const Nyheter: CollectionConfig = {
   },
 
   access: {
+    readVersions: ({ req }) => Boolean(req.user),
     read: ({ req }): boolean | Where => {
       if (req.user) {
         return true
@@ -19,6 +37,7 @@ export const Nyheter: CollectionConfig = {
 
       return {
         and: [
+          { lokallag: { exists: true } },
           {
             _status: {
               equals: 'published',
@@ -35,21 +54,7 @@ export const Nyheter: CollectionConfig = {
   },
 
   hooks: {
-    beforeChange: [
-      ({ data, originalDoc }) => {
-        const status = data._status ?? originalDoc?._status
-
-        if (originalDoc?.publishedAt) {
-          data.publishedAt = originalDoc.publishedAt
-        } else if (status === 'published') {
-          data.publishedAt = new Date().toISOString()
-        } else {
-          data.publishedAt = null
-        }
-
-        return data
-      },
-    ],
+    beforeChange: [setPublishedAt],
   },
 
   fields: [
@@ -82,6 +87,7 @@ export const Nyheter: CollectionConfig = {
       label: 'Lokallag',
       type: 'relationship',
       relationTo: 'lokallag',
+      required: true,
     },
   ],
 }

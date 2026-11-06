@@ -1,6 +1,9 @@
 # API-avtale – B06
 
-**Dato:** 2. november 2026  
+**Dato:** 2. november 2026
+
+**Sist oppdatert:** 6. november 2026 (B08)
+
 **Status:** Utkast til felles kontrakt for frontend og backend. Gruppens gjennomgang er ikke registrert.
 
 Avtalen beskriver offentlig lesing av lokallag, nyheter og kurs. Den konkretiserer
@@ -25,8 +28,8 @@ leses uten innlogging. Svarene leveres som JSON.
 | --- | --- | --- | --- |
 | GET | `/api/lokallag/oversikt` | Liste over lokallag | Implementert |
 | GET | `/api/lokallag/detaljer/:id` | Ett lokallag med adresse og kontaktinformasjon | Planlagt i B07 |
-| GET | `/api/nyheter/oversikt` | Publiserte nyheter, eventuelt for ett lokallag | Planlagt i B08 |
-| GET | `/api/nyheter/detaljer/:id` | Én publisert nyhet med innhold | Planlagt i B08 |
+| GET | `/api/nyheter/oversikt` | Publiserte nyheter, eventuelt for ett lokallag | Implementert i B08 |
+| GET | `/api/nyheter/detaljer/:id` | Én publisert nyhet med innhold | Implementert i B08 |
 | GET | `/api/kurs/oversikt` | Kommende kurs, eventuelt for ett lokallag | Planlagt i B09 |
 | GET | `/api/kurs/detaljer/:id` | Ett kurs med tidspunkt, sted og pris | Planlagt i B09 |
 
@@ -38,7 +41,7 @@ innebygde `/api/<samling>/:id`-ruter.
 ## 2. Felles formater og paginering
 
 - `id` leveres som tekst, selv om SQLite lagrer ID-en som et tall.
-- Relasjoner i de planlagte kurs- og nyhetssvarene leveres som `lokallagId: string`.
+- Relasjoner i nyhetssvarene og de planlagte kurssvarene leveres som `lokallagId: string`.
   Frontend får dermed samme form uavhengig av Payloads `depth`-innstilling.
 - Valgfrie felt som inngår i en DTO, leveres som `null` når de mangler.
 - `description` og `content` er ren tekst, ikke HTML.
@@ -46,7 +49,7 @@ innebygde `/api/<samling>/:id`-ruter.
   `2026-11-15T12:00:00.000Z`. Frontend viser dato og klokkeslett i `Europe/Oslo`.
 
 Alle oversikter skal bruke følgende parametere. Dette er allerede implementert
-for lokallagsoversikten og er planlagt for kurs og nyheter:
+for lokallags- og nyhetsoversiktene og er planlagt for kurs:
 
 | Parameter | Type | Standard | Krav |
 | --- | --- | --- | --- |
@@ -139,7 +142,7 @@ Ved treff returneres `200` og ett objekt direkte, uten `items` eller paginering:
 `address` er tekst og påkrevd i dagens samling. `contactEmail` og `contactPhone`
 er tekst eller `null`. En gyldig ID som ikke finnes, gir `404`.
 
-## 4. Nyheter – planlagt i B08
+## 4. Nyheter – implementert i B08
 
 ### 4.1 Oversikt
 
@@ -159,6 +162,11 @@ Publiseringsreglene i denne kontrakten er:
   gjennom den offentlige detaljruten, selv om leseren kjenner ID-en.
 - Et eksisterende lokallag uten publiserte nyheter gir `200` og en tom liste.
   Et lokallag som ikke finnes, gir `404`.
+- De egne nyhetsrutene viser bare offentlige versjoner også når brukeren er innlogget.
+  Parametere som `draft`, `where` og `publishedAtOrBefore` gir ikke tilgang til utkast
+  eller mulighet til å endre serverens tidsgrense.
+- Publisering krever et lokallag. Nyheter som har mistet koblingen, for eksempel ved
+  sletting av lokallaget, skjules i offentlige svar frem til koblingen er rettet.
 
 Eksempel med én publisert nyhet som matcher filteret:
 
@@ -201,11 +209,12 @@ Ved treff returneres `200`:
 
 En manglende eller ikke offentlig tilgjengelig nyhet gir `404` med samme feilmelding.
 
-**Gjenstående implementering:** Nyhetssamlingen har foreløpig ikke `_status` eller
-`publishedAt`, og lesetilgangen er nå åpen. B08 må innføre publiseringsfeltene og
-tilgangsreglene, også på de vanlige Payload-rutene. Bare filtrering i en ny DTO-rute
-er ikke tilstrekkelig til å skjerme utkast. `publishedAt` må settes ved første
-publisering og beholdes ved vanlige redigeringer.
+**Implementert:** Samlingen bruker Payloads utkastfunksjon og feltet `publishedAt`.
+Hooken setter datoen ved første publisering og beholder den ved redigering,
+avpublisering og republisering. Innloggede brukere kan arbeide med utkast gjennom
+admin/Payloads vanlige ruter; anonym lesing og versjonshistorikk er tilgangsstyrt.
+De egne offentlige endepunktene filtrerer alltid på publisert status og tidsgrense.
+Se [implementering og kontroll av B08](nyheter-b08.md).
 
 ## 5. Kurs – planlagt i B09
 
@@ -289,9 +298,9 @@ kurset er avsluttet. Detaljvisningen innebærer ikke at en påmeldingsfunksjon e
 
 **Gjenstående implementering:** Kurssamlingen mangler `location` og `price`.
 B09 må legge til feltene og oppdatere migreringer og testdata før dette svarformatet
-kan leveres. Relasjonen til lokallag finnes allerede, men er foreløpig valgfri
-for både kurs og nyheter. Kontrakten forutsetter at hver post har et gyldig lokallag;
-eksisterende data må kompletteres før relasjonen gjøres obligatorisk.
+kan leveres. Relasjonen til lokallag finnes allerede og er påkrevd ved publisering
+av nyheter. Den er foreløpig valgfri for kurs. Eksisterende kursdata må kompletteres
+før relasjonen gjøres obligatorisk der.
 
 ## 6. Feilsvar
 
@@ -303,22 +312,23 @@ Avtalt feilformat er et objekt med en lesbar `error`-tekst:
 }
 ```
 
-Dette formatet er allerede implementert for pagineringsfeil i lokallagsoversikten.
-For de nye endepunktene er det et implementeringskrav.
+Dette formatet er implementert i nyhetsrutene og for pagineringsfeil i
+lokallagsoversikten. Det gjelder som krav for de øvrige planlagte rutene.
 
 | Status | Situasjon | Eksempel på `error` | Status i kode |
 | --- | --- | --- | --- |
-| 400 | Ugyldig `page` | `page må være et positivt heltall.` | Implementert for lokallagsoversikten |
-| 400 | Ugyldig `pageSize` | `pageSize må være et heltall mellom 1 og 100.` | Implementert for lokallagsoversikten |
-| 400 | Sideberegningen blir for stor | `Den valgte siden er for stor.` | Implementert for lokallagsoversikten |
-| 400 | Ugyldig detalj-ID | `id må være en positiv heltalls-ID.` | Planlagt |
-| 400 | Ugyldig lokallagsfilter | `lokallagId må være en positiv heltalls-ID.` | Planlagt |
-| 404 | Lokallaget finnes ikke | `Lokallaget finnes ikke.` | Planlagt |
-| 404 | Nyheten finnes ikke eller er ikke offentlig | `Nyheten finnes ikke.` | Planlagt |
+| 400 | Ugyldig `page` | `page må være et positivt heltall.` | Implementert for lokallag og nyheter |
+| 400 | Ugyldig `pageSize` | `pageSize må være et heltall mellom 1 og 100.` | Implementert for lokallag og nyheter |
+| 400 | Sideberegningen blir for stor | `Den valgte siden er for stor.` | Implementert for lokallag og nyheter |
+| 400 | Ugyldig detalj-ID | `id må være en positiv heltalls-ID.` | Implementert for nyheter |
+| 400 | Ugyldig lokallagsfilter | `lokallagId må være en positiv heltalls-ID.` | Implementert for nyheter |
+| 403 | Lesetilgang nektes | `Ingen tilgang til å lese dataene.` | Implementert for nyhetsrutene |
+| 404 | Lokallaget finnes ikke | `Lokallaget finnes ikke.` | Implementert for nyhetsfilteret |
+| 404 | Nyheten finnes ikke eller er ikke offentlig | `Nyheten finnes ikke.` | Implementert |
 | 404 | Kurset finnes ikke | `Kurset finnes ikke.` | Planlagt |
-| 500 | Uventet serverfeil | `Kunne ikke hente data. Prøv igjen senere.` | Planlagt normalisering |
+| 500 | Uventet serverfeil | `Kunne ikke hente data. Prøv igjen senere.` | Implementert for nyheter |
 
-For de planlagte rutene må `id` og `lokallagId` være positive heltalls-ID-er som
+For nyhetsrutene og de planlagte rutene må `id` og `lokallagId` være positive heltalls-ID-er som
 kan representeres sikkert i JavaScript. Tom verdi, `0`, negative tall, desimaltall
 og `abc` gir `400`. Gyldig format uten en tilhørende post gir `404`. Parametere
 valideres før oppslag, og et oppgitt lokallag kontrolleres før den filtrerte listen hentes.
@@ -330,7 +340,8 @@ GET /api/lokallag/oversikt?page=0
 HTTP-status: 400
 ```
 
-Eksempel på et planlagt detaljsvar når lokallaget ikke finnes:
+Eksempel på feil når et lokallagsfilter peker på et lokallag som ikke finnes
+(samme format er planlagt for lokallagsdetaljer):
 
 ```json
 {
@@ -374,15 +385,16 @@ Frontend skal:
 | --- | --- |
 | B06 | Gjennomgå adresser, DTO-felt, prisformat, publiseringsregler og feilsvar med frontend |
 | B07 | Beholde fungerende lokallagsoversikt og implementere detaljruten med `400` og `404` |
-| B08 | Implementere nyhetsruter, publiseringsregler og filtrering per lokallag |
+| B08 | Implementert og testet; gjennomgang og merge følger gruppens GitHub-flyt |
 | B09 | Implementere kursruter, kommende-filter, sted og pris |
 | B10 | Erstatte eksempeldata i frontend og håndtere tilstandene beskrevet over |
 | B11 | Verifisere kontraktene med tester av svarformat, filtrering, sortering, tomme svar og feil |
 
 Eksisterende [integrasjonstester for lokallag](../Backend/tests/int/lokallag.int.spec.ts)
 dekker allerede listeformat, sortering, paginering, ugyldige parametere, en side uten
-treff og nektet lesetilgang. De planlagte endepunktene må få tilsvarende kontroller,
-inkludert skjuling av upubliserte nyheter og filtrering av tidligere kurs.
+treff og nektet lesetilgang. Nyhetsrutene har egne enhets- og integrasjonstester,
+inkludert HTTP-svar og skjuling av upubliserte nyheter. De øvrige planlagte
+endepunktene må få tilsvarende kontroller, inkludert filtrering av tidligere kurs.
 
 Avtalen er skrevet med AI-støtte og kontrollert mot eksisterende kode.
 Gruppens godkjenning er ikke registrert. Status og eksempler oppdateres når

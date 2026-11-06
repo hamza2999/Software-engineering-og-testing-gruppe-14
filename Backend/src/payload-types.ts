@@ -206,7 +206,7 @@ export interface Nyheter {
   title: string;
   publishedAt?: string | null;
   content: string;
-  lokallag?: (number | null) | Lokallag;
+  lokallag: number | Lokallag;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;

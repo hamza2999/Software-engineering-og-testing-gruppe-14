@@ -3,6 +3,7 @@
 Testdataene ligger i `Backend/src/seed/data.ts` og består av fire fiktive
 lokallag, fire kurs og fire nyheter. `Backend/src/seed/seed.ts` oppretter
 postene og kobler kurs og nyheter til riktig lokallag.
+Nye testnyheter opprettes som publiserte, og publiseringshooken setter datoen.
 
 ## Opprette testdata
 
@@ -27,7 +28,7 @@ vanlige utviklingsdatabasen berøres ikke.
 Forventet resultat er fire lokallag, fire kurs og fire nyheter:
 
 ```text
-Nyheter i databasen:  4
+Publiserte nyheter i databasen: 4
 Lokallag i databasen: 4
 Kurs i databasen:  4
 ```
@@ -41,6 +42,9 @@ NODE_ENV=production DATABASE_URL="file:$b05_test_dir/seed.db" npm run payload --
 Antall poster skal være uendret. Scriptet gjenkjenner lokallag etter navn,
 og kurs og nyheter etter kombinasjonen av tittel og lokallag. Eksisterende
 poster hoppes over og oppdateres ikke dersom innholdet i `data.ts` endres.
+Nyhetstellingen viser poster som kan leses uten innlogging. Dersom gamle seed-poster
+allerede finnes som utkast, publiseres de ikke automatisk ved ny kjøring. Bruk en ny
+testdatabase eller publiser de aktuelle testnyhetene i adminpanelet etter gjennomgang.
 
 ## Starte med tom testdatabase
 
