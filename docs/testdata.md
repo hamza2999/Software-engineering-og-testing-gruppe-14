@@ -4,6 +4,10 @@ Testdataene ligger i `Backend/src/seed/data.ts` og består av fire fiktive
 lokallag, fire kurs og fire nyheter. `Backend/src/seed/seed.ts` oppretter
 postene og kobler kurs og nyheter til riktig lokallag.
 Nye testnyheter opprettes som publiserte, og publiseringshooken setter datoen.
+Testkursene har sted og pris i øre. «Sy» er uttrykkelig satt til gratis (`0`),
+mens de øvrige har fiktive priser. Kursdatoene er faste: «Sy» ligger 1. oktober 2026,
+og de tre øvrige ligger 15. november 2026. Antall kommende kurs vil derfor avhenge
+av tidspunktet API-et blir kalt.
 
 ## Opprette testdata
 
@@ -30,7 +34,7 @@ Forventet resultat er fire lokallag, fire kurs og fire nyheter:
 ```text
 Publiserte nyheter i databasen: 4
 Lokallag i databasen: 4
-Kurs i databasen:  4
+Komplette kurs i databasen: 4
 ```
 
 Kjør seed-kommandoen én gang til i samme terminal:
@@ -45,6 +49,10 @@ poster hoppes over og oppdateres ikke dersom innholdet i `data.ts` endres.
 Nyhetstellingen viser poster som kan leses uten innlogging. Dersom gamle seed-poster
 allerede finnes som utkast, publiseres de ikke automatisk ved ny kjøring. Bruk en ny
 testdatabase eller publiser de aktuelle testnyhetene i adminpanelet etter gjennomgang.
+Kurstallet omfatter alle komplette kurs, også tidligere kurs. Gamle kurs uten sted,
+pris eller lokallag telles ikke i offentlig lesing. Seed-scriptet fyller ikke inn
+ukjente priser på eksisterende poster; bruk en ny testdatabase eller kompletter dem
+med riktige verdier i admin.
 
 ## Starte med tom testdatabase
 

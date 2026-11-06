@@ -177,6 +177,14 @@ export interface Kur {
   title: string;
   date: string;
   description: string;
+  /**
+   * Oppgi sted og nødvendig adresseinformasjon.
+   */
+  location?: string | null;
+  /**
+   * NOK: 15000 betyr 150 kroner. Angi 0 for gratis kurs.
+   */
+  price?: number | null;
   image?: string | null;
   lokallag?: (number | null) | Lokallag;
   updatedAt: string;
@@ -346,6 +354,8 @@ export interface KursSelect<T extends boolean = true> {
   title?: T;
   date?: T;
   description?: T;
+  location?: T;
+  price?: T;
   image?: T;
   lokallag?: T;
   updatedAt?: T;
