@@ -2,7 +2,7 @@
 
 **Dato:** 2. november 2026
 
-**Sist oppdatert:** 6. november 2026 (B08)
+**Sist oppdatert:** 6. november 2026 (B08 og B09)
 
 **Status:** Utkast til felles kontrakt for frontend og backend. Gruppens gjennomgang er ikke registrert.
 
@@ -30,8 +30,8 @@ leses uten innlogging. Svarene leveres som JSON.
 | GET | `/api/lokallag/detaljer/:id` | Ett lokallag med adresse og kontaktinformasjon | Planlagt i B07 |
 | GET | `/api/nyheter/oversikt` | Publiserte nyheter, eventuelt for ett lokallag | Implementert i B08 |
 | GET | `/api/nyheter/detaljer/:id` | Én publisert nyhet med innhold | Implementert i B08 |
-| GET | `/api/kurs/oversikt` | Kommende kurs, eventuelt for ett lokallag | Planlagt i B09 |
-| GET | `/api/kurs/detaljer/:id` | Ett kurs med tidspunkt, sted og pris | Planlagt i B09 |
+| GET | `/api/kurs/oversikt` | Kommende kurs, eventuelt for ett lokallag | Implementert i B09 |
+| GET | `/api/kurs/detaljer/:id` | Ett kurs med tidspunkt, sted og pris | Implementert i B09 |
 
 `:id` erstattes med en ID fra API-et, for eksempel `/api/lokallag/detaljer/1`.
 Payloads vanlige samlingsruter finnes også, men har andre svarformater.
@@ -41,15 +41,15 @@ innebygde `/api/<samling>/:id`-ruter.
 ## 2. Felles formater og paginering
 
 - `id` leveres som tekst, selv om SQLite lagrer ID-en som et tall.
-- Relasjoner i nyhetssvarene og de planlagte kurssvarene leveres som `lokallagId: string`.
+- Relasjoner i nyhets- og kurssvarene leveres som `lokallagId: string`.
   Frontend får dermed samme form uavhengig av Payloads `depth`-innstilling.
 - Valgfrie felt som inngår i en DTO, leveres som `null` når de mangler.
 - `description` og `content` er ren tekst, ikke HTML.
 - Datoer leveres som ISO 8601-tidsstempler i UTC, for eksempel
   `2026-11-15T12:00:00.000Z`. Frontend viser dato og klokkeslett i `Europe/Oslo`.
 
-Alle oversikter skal bruke følgende parametere. Dette er allerede implementert
-for lokallags- og nyhetsoversiktene og er planlagt for kurs:
+Alle oversikter bruker følgende parametere. Dette er implementert for lokallag,
+nyheter og kurs:
 
 | Parameter | Type | Standard | Krav |
 | --- | --- | --- | --- |
@@ -216,7 +216,7 @@ admin/Payloads vanlige ruter; anonym lesing og versjonshistorikk er tilgangsstyr
 De egne offentlige endepunktene filtrerer alltid på publisert status og tidsgrense.
 Se [implementering og kontroll av B08](nyheter-b08.md).
 
-## 5. Kurs – planlagt i B09
+## 5. Kurs – implementert i B09
 
 ### 5.1 Oversikt
 
@@ -231,6 +231,10 @@ Uten parameteren returneres kommende kurs fra alle lokallag.
 Filtrering og sortering skjer før paginering. Listen sorteres på `date` stigende,
 deretter `id` stigende ved lik dato. Et eksisterende lokallag uten kommende kurs
 gir `200` med en tom liste.
+
+Tidspunktet beregnes på serveren for hver forespørsel. Klientparametere som
+`startsAtOrAfter`, `where` og `sort` endrer ikke disse reglene. Datoer normaliseres
+til UTC ved lagring, slik at ulike tidssoneangivelser sammenlignes korrekt.
 
 Eksempel med ett kommende kurs som matcher filteret:
 
@@ -292,15 +296,21 @@ Listeelementet og detaljsvaret bruker samme kursformat i første versjon:
 ved visning som kroner. Manglende pris skal ikke tolkes som gratis. `currency`
 kan settes til `"NOK"` i DTO-en og trenger ikke et eget databasefelt.
 
-En gyldig kurs-ID som ikke finnes, gir `404`. Detaljruten kan også vise et tidligere
+En gyldig kurs-ID som ikke finnes eller peker på et ufullstendig kurs, gir `404`.
+Detaljruten kan også vise et tidligere
 kurs; «kommende»-filteret gjelder oversikten. Datoen avgjør om frontend viser at
 kurset er avsluttet. Detaljvisningen innebærer ikke at en påmeldingsfunksjon er implementert.
 
-**Gjenstående implementering:** Kurssamlingen mangler `location` og `price`.
-B09 må legge til feltene og oppdatere migreringer og testdata før dette svarformatet
-kan leveres. Relasjonen til lokallag finnes allerede og er påkrevd ved publisering
-av nyheter. Den er foreløpig valgfri for kurs. Eksisterende kursdata må kompletteres
-før relasjonen gjøres obligatorisk der.
+**Implementert:** Samlingen har `location` og `price`. Lagringshooken krever et
+gyldig tidspunkt, utfylt sted, gyldig pris og et eksisterende lokallag ved opprettelse
+og endring. Sted trimmes, og tidspunktet lagres i UTC. Priskravet gjelder også `0`,
+som må angis uttrykkelig når kurset er gratis.
+
+Databasefeltene for sted og pris er nullable for å bevare eksisterende kurs uten
+å finne på manglende verdier. Offentlige svar inneholder bare komplette kurs,
+også når brukeren er innlogget. Gamle ufullstendige kurs kan leses og kompletteres
+i admin/Payloads vanlige ruter av innloggede brukere. Kurs som mister lokallaget,
+skjules i offentlige svar. Se [implementering og kontroll av B09](kurs-b09.md).
 
 ## 6. Feilsvar
 
@@ -312,23 +322,23 @@ Avtalt feilformat er et objekt med en lesbar `error`-tekst:
 }
 ```
 
-Dette formatet er implementert i nyhetsrutene og for pagineringsfeil i
+Dette formatet er implementert i nyhets- og kursrutene og for pagineringsfeil i
 lokallagsoversikten. Det gjelder som krav for de øvrige planlagte rutene.
 
 | Status | Situasjon | Eksempel på `error` | Status i kode |
 | --- | --- | --- | --- |
-| 400 | Ugyldig `page` | `page må være et positivt heltall.` | Implementert for lokallag og nyheter |
-| 400 | Ugyldig `pageSize` | `pageSize må være et heltall mellom 1 og 100.` | Implementert for lokallag og nyheter |
-| 400 | Sideberegningen blir for stor | `Den valgte siden er for stor.` | Implementert for lokallag og nyheter |
-| 400 | Ugyldig detalj-ID | `id må være en positiv heltalls-ID.` | Implementert for nyheter |
-| 400 | Ugyldig lokallagsfilter | `lokallagId må være en positiv heltalls-ID.` | Implementert for nyheter |
-| 403 | Lesetilgang nektes | `Ingen tilgang til å lese dataene.` | Implementert for nyhetsrutene |
-| 404 | Lokallaget finnes ikke | `Lokallaget finnes ikke.` | Implementert for nyhetsfilteret |
+| 400 | Ugyldig `page` | `page må være et positivt heltall.` | Implementert for alle oversikter |
+| 400 | Ugyldig `pageSize` | `pageSize må være et heltall mellom 1 og 100.` | Implementert for alle oversikter |
+| 400 | Sideberegningen blir for stor | `Den valgte siden er for stor.` | Implementert for alle oversikter |
+| 400 | Ugyldig detalj-ID | `id må være en positiv heltalls-ID.` | Implementert for nyheter og kurs |
+| 400 | Ugyldig lokallagsfilter | `lokallagId må være en positiv heltalls-ID.` | Implementert for nyheter og kurs |
+| 403 | Lesetilgang nektes | `Ingen tilgang til å lese dataene.` | Implementert for nyheter og kurs |
+| 404 | Lokallaget finnes ikke | `Lokallaget finnes ikke.` | Implementert for nyhets- og kursfilter |
 | 404 | Nyheten finnes ikke eller er ikke offentlig | `Nyheten finnes ikke.` | Implementert |
-| 404 | Kurset finnes ikke | `Kurset finnes ikke.` | Planlagt |
-| 500 | Uventet serverfeil | `Kunne ikke hente data. Prøv igjen senere.` | Implementert for nyheter |
+| 404 | Kurset finnes ikke eller er ufullstendig | `Kurset finnes ikke.` | Implementert |
+| 500 | Uventet serverfeil | `Kunne ikke hente data. Prøv igjen senere.` | Implementert for nyheter og kurs |
 
-For nyhetsrutene og de planlagte rutene må `id` og `lokallagId` være positive heltalls-ID-er som
+For nyhetsrutene, kursrutene og de planlagte rutene må `id` og `lokallagId` være positive heltalls-ID-er som
 kan representeres sikkert i JavaScript. Tom verdi, `0`, negative tall, desimaltall
 og `abc` gir `400`. Gyldig format uten en tilhørende post gir `404`. Parametere
 valideres før oppslag, og et oppgitt lokallag kontrolleres før den filtrerte listen hentes.
@@ -386,15 +396,16 @@ Frontend skal:
 | B06 | Gjennomgå adresser, DTO-felt, prisformat, publiseringsregler og feilsvar med frontend |
 | B07 | Beholde fungerende lokallagsoversikt og implementere detaljruten med `400` og `404` |
 | B08 | Implementert og testet; gjennomgang og merge følger gruppens GitHub-flyt |
-| B09 | Implementere kursruter, kommende-filter, sted og pris |
+| B09 | Implementert og testet; gjennomgang og merge følger gruppens GitHub-flyt |
 | B10 | Erstatte eksempeldata i frontend og håndtere tilstandene beskrevet over |
 | B11 | Verifisere kontraktene med tester av svarformat, filtrering, sortering, tomme svar og feil |
 
 Eksisterende [integrasjonstester for lokallag](../Backend/tests/int/lokallag.int.spec.ts)
 dekker allerede listeformat, sortering, paginering, ugyldige parametere, en side uten
 treff og nektet lesetilgang. Nyhetsrutene har egne enhets- og integrasjonstester,
-inkludert HTTP-svar og skjuling av upubliserte nyheter. De øvrige planlagte
-endepunktene må få tilsvarende kontroller, inkludert filtrering av tidligere kurs.
+inkludert HTTP-svar og skjuling av upubliserte nyheter. Kursrutene har enhets- og
+integrasjonstester for kommende-filter, tidspunkt, pris, sted og feilsvar.
+De øvrige planlagte endepunktene må få tilsvarende kontroller.
 
 Avtalen er skrevet med AI-støtte og kontrollert mot eksisterende kode.
 Gruppens godkjenning er ikke registrert. Status og eksempler oppdateres når

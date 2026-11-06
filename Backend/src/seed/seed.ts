@@ -67,6 +67,9 @@ try {
           title: kurs.title,
           date: kurs.date,
           description: kurs.description,
+          location: kurs.location,
+          price: kurs.price,
+          image: kurs.image ?? null,
           lokallag: lag.id,
         },
         overrideAccess: true,
@@ -135,7 +138,7 @@ try {
     overrideAccess: false,
   })
 
-  console.log('Kurs i databasen: ', kursResultat.totalDocs)
+  console.log('Komplette kurs i databasen:', kursResultat.totalDocs)
 } finally {
   await payload.destroy()
 }
