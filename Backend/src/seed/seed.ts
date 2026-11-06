@@ -111,6 +111,7 @@ try {
           title: nyhet.title,
           content: nyhet.content,
           lokallag: lag.id,
+          _status: 'published',
         },
         overrideAccess: true,
       })
@@ -122,7 +123,7 @@ try {
     overrideAccess: false,
   })
 
-  console.log('Nyheter i databasen: ', nyheterResultat.totalDocs)
+  console.log('Publiserte nyheter i databasen:', nyheterResultat.totalDocs)
 
   const result = await payload.count({
     collection: 'lokallag',
