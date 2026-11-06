@@ -6,6 +6,10 @@
     "dev:frontend": "npm --prefix Frontend run dev",
     "dev:backend": "npm --prefix Backend run dev",
     "install:frontend": "npm --prefix Frontend install",
-    "install:backend": "npm --prefix Backend install"
+    "install:backend": "npm --prefix Backend install",
+    "test:frontend": "npm --prefix Frontend test",
+    "test:backend": "npm --prefix Backend run test:unit && npm --prefix Backend run test:int",
+    "test:e2e": "npm --prefix Backend run test:e2e",
+    "test": "npm run test:frontend && npm run test:backend && npm run test:e2e"
   }
 }
