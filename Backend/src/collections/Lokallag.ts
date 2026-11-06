@@ -1,10 +1,13 @@
 import type { CollectionConfig } from 'payload'
-import { lokallagOverviewEndpoint } from '../modules/lokallag/http/lokallagEndpoints'
+import {
+  lokallagDetailsEndpoint,
+  lokallagOverviewEndpoint,
+} from '../modules/lokallag/http/lokallagEndpoints'
 
 export const Lokallag: CollectionConfig = {
   slug: 'lokallag',
 
-  endpoints: [lokallagOverviewEndpoint],
+  endpoints: [lokallagOverviewEndpoint, lokallagDetailsEndpoint],
 
   admin: {
     useAsTitle: 'name',

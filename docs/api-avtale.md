@@ -2,7 +2,7 @@
 
 **Dato:** 2. november 2026
 
-**Sist oppdatert:** 6. november 2026 (B08 og B09)
+**Sist oppdatert:** 6. november 2026 (B07–B11)
 
 **Status:** Utkast til felles kontrakt for frontend og backend. Gruppens gjennomgang er ikke registrert.
 
@@ -27,7 +27,7 @@ leses uten innlogging. Svarene leveres som JSON.
 | Metode | Sti | Formål | Status |
 | --- | --- | --- | --- |
 | GET | `/api/lokallag/oversikt` | Liste over lokallag | Implementert |
-| GET | `/api/lokallag/detaljer/:id` | Ett lokallag med adresse og kontaktinformasjon | Planlagt i B07 |
+| GET | `/api/lokallag/detaljer/:id` | Ett lokallag med adresse og kontaktinformasjon | Implementert i B07/integrasjon |
 | GET | `/api/nyheter/oversikt` | Publiserte nyheter, eventuelt for ett lokallag | Implementert i B08 |
 | GET | `/api/nyheter/detaljer/:id` | Én publisert nyhet med innhold | Implementert i B08 |
 | GET | `/api/kurs/oversikt` | Kommende kurs, eventuelt for ett lokallag | Implementert i B09 |
@@ -119,7 +119,7 @@ Adresse og kontaktinformasjon er ikke med i oversikten. Se
 [HTTP-endepunktet](../Backend/src/modules/lokallag/http/lokallagEndpoints.ts) og
 [servicen](../Backend/src/modules/lokallag/application/LokallagService.ts).
 
-### 3.2 Detaljer – planlagt i B07
+### 3.2 Detaljer – implementert
 
 ```text
 GET /api/lokallag/detaljer/1
@@ -322,23 +322,22 @@ Avtalt feilformat er et objekt med en lesbar `error`-tekst:
 }
 ```
 
-Dette formatet er implementert i nyhets- og kursrutene og for pagineringsfeil i
-lokallagsoversikten. Det gjelder som krav for de øvrige planlagte rutene.
+Dette formatet er implementert for oversikter og detaljer for lokallag, nyheter og kurs.
 
 | Status | Situasjon | Eksempel på `error` | Status i kode |
 | --- | --- | --- | --- |
 | 400 | Ugyldig `page` | `page må være et positivt heltall.` | Implementert for alle oversikter |
 | 400 | Ugyldig `pageSize` | `pageSize må være et heltall mellom 1 og 100.` | Implementert for alle oversikter |
 | 400 | Sideberegningen blir for stor | `Den valgte siden er for stor.` | Implementert for alle oversikter |
-| 400 | Ugyldig detalj-ID | `id må være en positiv heltalls-ID.` | Implementert for nyheter og kurs |
+| 400 | Ugyldig detalj-ID | `id må være en positiv heltalls-ID.` | Implementert for alle detaljruter |
 | 400 | Ugyldig lokallagsfilter | `lokallagId må være en positiv heltalls-ID.` | Implementert for nyheter og kurs |
-| 403 | Lesetilgang nektes | `Ingen tilgang til å lese dataene.` | Implementert for nyheter og kurs |
-| 404 | Lokallaget finnes ikke | `Lokallaget finnes ikke.` | Implementert for nyhets- og kursfilter |
+| 403 | Lesetilgang nektes | `Ingen tilgang til å lese dataene.` | Implementert for alle seks ruter |
+| 404 | Lokallaget finnes ikke | `Lokallaget finnes ikke.` | Implementert for lokallagsdetaljer og nyhets-/kursfilter |
 | 404 | Nyheten finnes ikke eller er ikke offentlig | `Nyheten finnes ikke.` | Implementert |
 | 404 | Kurset finnes ikke eller er ufullstendig | `Kurset finnes ikke.` | Implementert |
-| 500 | Uventet serverfeil | `Kunne ikke hente data. Prøv igjen senere.` | Implementert for nyheter og kurs |
+| 500 | Uventet serverfeil | `Kunne ikke hente data. Prøv igjen senere.` | Implementert for alle seks ruter |
 
-For nyhetsrutene, kursrutene og de planlagte rutene må `id` og `lokallagId` være positive heltalls-ID-er som
+For detaljrutene og filtrene må `id` og `lokallagId` være positive heltalls-ID-er som
 kan representeres sikkert i JavaScript. Tom verdi, `0`, negative tall, desimaltall
 og `abc` gir `400`. Gyldig format uten en tilhørende post gir `404`. Parametere
 valideres før oppslag, og et oppgitt lokallag kontrolleres før den filtrerte listen hentes.
@@ -351,7 +350,7 @@ HTTP-status: 400
 ```
 
 Eksempel på feil når et lokallagsfilter peker på et lokallag som ikke finnes
-(samme format er planlagt for lokallagsdetaljer):
+(samme format brukes for lokallagsdetaljer):
 
 ```json
 {
@@ -361,15 +360,14 @@ Eksempel på feil når et lokallagsfilter peker på et lokallag som ikke finnes
 
 HTTP-statusen for dette svaret er `404`.
 
-Uventede feil og tilgangsfeil sendes i dag videre til Payload av lokallagsendepunktet.
-JSON-formatet er derfor ikke normalisert for alle feil ennå. Integrasjonstesten
+Lokallagsrutene normaliserer også tilgangsfeil og uventede feil. Integrasjonstestene
 verifiserer `403` dersom lesetilgangen nektes, selv om normal konfigurasjon tillater
-offentlig lesing. Frontend må ha en generell feilmelding dersom `error`-feltet mangler;
-den skal ikke være avhengig av Payloads interne feilstruktur.
+offentlig lesing. Frontend har en generell feilmelding dersom `error`-feltet mangler,
+svaret ikke er gyldig JSON eller serveren svarer med `5xx`.
 
 ## 7. Bruk i frontend – B10
 
-| Frontendside | Planlagt datakilde |
+| Frontendside | Implementert datakilde |
 | --- | --- |
 | Medlemsgrupper | `/api/lokallag/oversikt` |
 | Én medlemsgruppe | `/api/lokallag/detaljer/:id` |
@@ -378,34 +376,55 @@ den skal ikke være avhengig av Payloads interne feilstruktur.
 | Kursliste | `/api/kurs/oversikt` |
 | Kursdetaljer der disse vises | `/api/kurs/detaljer/:id` |
 
-Frontend skal:
+Frontend bruker nå API-et og følger disse reglene:
 
 1. Bruke `items` fra listesvar og objektet direkte fra detaljsvar.
 2. Bruke ID-ene fra API-et i lenker, uten å anta faste ID-er fra eksempeldata.
 3. Håndtere lasting, tom liste, `404` på detaljsider og andre feil som ulike tilstander.
 4. Kontrollere `response.ok`; et HTTP-feilsvar må håndteres selv om nettverkskallet lykkes.
 5. Formatere ISO-datoer og pris i øre før de vises til brukeren.
-6. Bruke `totalPages` når flere sider skal hentes. Dagens lokale søk i medlemsgrupper
-   dekker bare innlastede poster; dersom samme klientsøk beholdes, må alle sidene
-   hentes før søket skal dekke samtlige lokallag.
+6. Bruke `totalPages` når flere sider skal hentes. Medlemsgruppesøk og lokallagsfilter
+   henter alle sider. Globalt søk henter alle sider for de tre oversiktene når brukeren
+   sender søket. Dette er tilpasset dagens lille datamengde; serversøk er en senere forbedring.
+
+Kurs og nyheter pagineres med seks elementer per side. Lokallagsfilteret sendes
+til backend før paginering. URL-en bevarer filter og sidenummer. På forsiden hentes
+siste publiserte nyhet og to lokallag. Detaljsider bruker ID-er fra svarene.
+
+Kurspåmelding er fortsatt ikke implementert. Den gamle eksempelruten for påmelding
+leder til kursdetaljene med informasjon om kontakt med lokallaget.
+
+`API_PROXY_TARGET` styrer Vites proxy i utvikling og preview. `VITE_API_BASE_URL`
+er normalt `/api`; en absolutt API-adresse kan brukes ved separat hosting.
+`FRONTEND_URL` i backend er en kommaseparert liste over tillatte origins for
+CORS/CSRF. Variablene er beskrevet i prosjektets `.env.example`-filer.
+
+### Healthcheck – B11
+
+`GET /api/health` sjekker at databasen kan leses. Den returnerer `200` med
+`{"status":"ok"}` eller `503` med `{"status":"unavailable"}`. Den sender ingen
+brukerdata eller interne feildetaljer og har `Cache-Control: no-store`.
+Den eksisterende `/my-route` bruker samme kontroll. Hvis hele serveren eller
+Payload-oppstarten svikter, kan proxyen/serveren gi et annet feilsvar før handleren nås.
 
 ## 8. Gjennomgang og videre implementering
 
 | Oppgave | Hva som skal kontrolleres |
 | --- | --- |
 | B06 | Gjennomgå adresser, DTO-felt, prisformat, publiseringsregler og feilsvar med frontend |
-| B07 | Beholde fungerende lokallagsoversikt og implementere detaljruten med `400` og `404` |
+| B07 | Jovans detaljoppslag, DTO og enhetstester er koblet til HTTP og integrasjonstestet |
 | B08 | Implementert og testet; gjennomgang og merge følger gruppens GitHub-flyt |
 | B09 | Implementert og testet; gjennomgang og merge følger gruppens GitHub-flyt |
-| B10 | Erstatte eksempeldata i frontend og håndtere tilstandene beskrevet over |
-| B11 | Verifisere kontraktene med tester av svarformat, filtrering, sortering, tomme svar og feil |
+| B10 | API-baserte sider, søk, filtre, paginering og tilstander er implementert |
+| B11 | Healthcheck, isolerte integrasjonstester og nettlesertester mot reell database |
 
 Eksisterende [integrasjonstester for lokallag](../Backend/tests/int/lokallag.int.spec.ts)
 dekker allerede listeformat, sortering, paginering, ugyldige parametere, en side uten
 treff og nektet lesetilgang. Nyhetsrutene har egne enhets- og integrasjonstester,
 inkludert HTTP-svar og skjuling av upubliserte nyheter. Kursrutene har enhets- og
 integrasjonstester for kommende-filter, tidspunkt, pris, sted og feilsvar.
-De øvrige planlagte endepunktene må få tilsvarende kontroller.
+Nettlesertestene kontrollerer også integrasjonen gjennom frontendproxyen på desktop
+og mobil. Se [B10/B11 og testoppsettet](integrasjon-b10-b11.md).
 
 Avtalen er skrevet med AI-støtte og kontrollert mot eksisterende kode.
 Gruppens godkjenning er ikke registrert. Status og eksempler oppdateres når
