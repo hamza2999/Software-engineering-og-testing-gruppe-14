@@ -21,6 +21,8 @@
     "db:migrate:create": "npm run payload -- migrate:create"
   },
   "dependencies": {
+    "@payloadcms/db-sqlite": "3.90.2",
+    "@payloadcms/email-nodemailer": "^3.93.0",
     "@payloadcms/next": "3.90.2",
     "@payloadcms/richtext-lexical": "3.90.2",
     "@payloadcms/ui": "3.90.2",
@@ -31,8 +33,7 @@
     "payload": "3.90.2",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "sharp": "0.35.4",
-    "@payloadcms/db-sqlite": "3.90.2"
+    "sharp": "0.35.4"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
