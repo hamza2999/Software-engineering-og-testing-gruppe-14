@@ -13,4 +13,5 @@ export interface LokallagPage {
 // Utgående port: kjernen bestemmer hva den trenger fra datalagringen.
 export interface LokallagRepository {
   findPage(query: LokallagPageQuery): Promise<LokallagPage>
+  findById(id: string): Promise<Lokallag | null>
 }
