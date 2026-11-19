@@ -2,9 +2,39 @@ import type { LokallagPageQuery, LokallagRepository } from './LokallagRepository
 
 export class InvalidLokallagQueryError extends Error {}
 
+export class InvalidLokallagIdError extends Error {
+  constructor() {
+    super('id må være en positiv heltalls-ID.')
+  }
+}
+
+export class LokallagNotFoundError extends Error {
+  constructor() {
+    super('Lokallaget finnes ikke.')
+  }
+}
+
 export class LokallagService {
   // Dependency Injection: implementasjonen gis utenfra gjennom konstruktøren.
   constructor(private readonly repository: LokallagRepository) {}
+
+  async getById(id: string) {
+    const numericId = Number(id)
+
+    if (
+      id !== id.trim() ||
+      !/^\d+$/.test(id) ||
+      !Number.isSafeInteger(numericId) ||
+      numericId < 1
+    ) {
+      throw new InvalidLokallagIdError()
+    }
+
+    const lokallag = await this.repository.findById(String(numericId))
+    if (!lokallag) throw new LokallagNotFoundError()
+
+    return lokallag
+  }
 
   async list(query: Partial<LokallagPageQuery> = {}) {
     const { page = 1, pageSize = 20 } = query

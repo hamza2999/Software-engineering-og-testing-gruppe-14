@@ -10,11 +10,20 @@ import { Media } from './collections/Media'
 import { Kurs } from './collections/Kurs'
 import { Nyheter } from './collections/Nyheter'
 import { Lokallag } from './collections/Lokallag'
+import { healthEndpoint } from './health/healthEndpoint'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const frontendOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,http://127.0.0.1:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+  .map((origin) => new URL(origin).origin)
 
 export default buildConfig({
+  cors: frontendOrigins,
+  csrf: frontendOrigins,
+  endpoints: [healthEndpoint],
   admin: {
     user: Users.slug,
     importMap: {
@@ -28,6 +37,7 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   db: sqliteAdapter({
+    push: process.env.PAYLOAD_DB_PUSH !== 'false',
     client: {
       url: process.env.DATABASE_URL || '',
     },

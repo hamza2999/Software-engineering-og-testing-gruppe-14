@@ -177,6 +177,14 @@ export interface Kur {
   title: string;
   date: string;
   description: string;
+  /**
+   * Oppgi sted og nødvendig adresseinformasjon.
+   */
+  location?: string | null;
+  /**
+   * NOK: 15000 betyr 150 kroner. Angi 0 for gratis kurs.
+   */
+  price?: number | null;
   image?: string | null;
   lokallag?: (number | null) | Lokallag;
   updatedAt: string;
@@ -204,10 +212,12 @@ export interface Lokallag {
 export interface Nyheter {
   id: number;
   title: string;
+  publishedAt?: string | null;
   content: string;
-  lokallag?: (number | null) | Lokallag;
+  lokallag: number | Lokallag;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -344,6 +354,8 @@ export interface KursSelect<T extends boolean = true> {
   title?: T;
   date?: T;
   description?: T;
+  location?: T;
+  price?: T;
   image?: T;
   lokallag?: T;
   updatedAt?: T;
@@ -355,10 +367,12 @@ export interface KursSelect<T extends boolean = true> {
  */
 export interface NyheterSelect<T extends boolean = true> {
   title?: T;
+  publishedAt?: T;
   content?: T;
   lokallag?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

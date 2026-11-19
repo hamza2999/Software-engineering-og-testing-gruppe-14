@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { apiUrl } from '../api/client'
 import './Login.css'
 
 function Login() {
@@ -12,7 +13,7 @@ function Login() {
 
   // Sjekker om brukeren allerede er logget inn
   useEffect(() => {
-    fetch('/api/users/me', { credentials: 'include' })
+    fetch(apiUrl('/users/me'), { credentials: 'include' })
       .then((response) => (response.ok ? response.json() : null))
       .then((data) => setUser(data?.user ?? null))
       .catch(() => setUser(null))
@@ -29,7 +30,7 @@ function Login() {
 
     setLoading(true)
     try {
-      const response = await fetch('/api/users/login', {
+      const response = await fetch(apiUrl('/users/login'), {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -61,7 +62,7 @@ function Login() {
     }
 
     try {
-      await fetch('/api/users/forgot-password', {
+      await fetch(apiUrl('/users/forgot-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),
@@ -77,7 +78,7 @@ function Login() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/users/logout', { method: 'POST', credentials: 'include' })
+      await fetch(apiUrl('/users/logout'), { method: 'POST', credentials: 'include' })
     } finally {
       setUser(null)
       setMessage({ type: 'success', text: 'Du er nå logget ut.' })
@@ -90,7 +91,10 @@ function Login() {
         <h1>{user ? 'Min side' : 'Logg inn'}</h1>
 
         {message && (
-          <p className={`login-message ${message.type}`} role={message.type === 'error' ? 'alert' : 'status'}>
+          <p
+            className={`login-message ${message.type}`}
+            role={message.type === 'error' ? 'alert' : 'status'}
+          >
             {message.text}
           </p>
         )}
