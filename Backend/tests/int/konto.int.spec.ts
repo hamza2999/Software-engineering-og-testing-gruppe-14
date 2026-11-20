@@ -126,6 +126,19 @@ describe('Konto og tilgang mot en isolert SQLite-database', () => {
     ).resolves.toMatchObject({ name: 'Testlag' })
   })
 
+  it('gir samme konfigurasjonsfeil for kjent og ukjent adresse hvis offentlig URL mangler', async () => {
+    const origin = process.env.PAYLOAD_PUBLIC_SERVER_URL
+    vi.stubEnv('PAYLOAD_PUBLIC_SERVER_URL', '')
+    try {
+      for (const email of [account.email, 'finnes-ikke@example.test']) {
+        const response = await request('users/forgot-password', { email })
+        expect(response.status).toBe(503)
+      }
+    } finally {
+      vi.stubEnv('PAYLOAD_PUBLIC_SERVER_URL', origin)
+    }
+  })
+
   it('sender passordlenke til konfigurert backend og godtar nytt passord én gang', async () => {
     const send = vi.spyOn(payload.email, 'sendEmail').mockResolvedValue(undefined)
     try {
