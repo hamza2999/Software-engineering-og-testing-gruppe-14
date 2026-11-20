@@ -164,6 +164,7 @@ export default async function setup() {
       DATABASE_URL: `file:${path.join(root, 'test.db')}`,
       PAYLOAD_SECRET: `E2E-${randomUUID()}`,
       PAYLOAD_DB_PUSH: 'false',
+      EMAIL_TRANSPORT: 'console',
       FRONTEND_URL: frontendURL,
       E2E_RUNTIME_DIR: root,
     }

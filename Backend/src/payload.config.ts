@@ -1,4 +1,5 @@
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -11,9 +12,11 @@ import { Kurs } from './collections/Kurs'
 import { Nyheter } from './collections/Nyheter'
 import { Lokallag } from './collections/Lokallag'
 import { healthEndpoint } from './health/healthEndpoint'
+import { smtpEmailOptions } from './email/smtp'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const smtp = smtpEmailOptions(process.env)
 const frontendOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,http://127.0.0.1:5173')
   .split(',')
   .map((origin) => origin.trim())
@@ -21,6 +24,7 @@ const frontendOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,http
   .map((origin) => new URL(origin).origin)
 
 export default buildConfig({
+  email: smtp ? nodemailerAdapter(smtp) : undefined,
   cors: frontendOrigins,
   csrf: frontendOrigins,
   endpoints: [healthEndpoint],

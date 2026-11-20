@@ -7,4 +7,5 @@ import { vi } from 'vitest'
 // Integrasjonstestene setter hver sin DATABASE_URL før config importeres.
 vi.stubEnv('NODE_ENV', 'test')
 vi.stubEnv('PAYLOAD_DB_PUSH', 'true')
+vi.stubEnv('EMAIL_TRANSPORT', 'console')
 vi.stubEnv('PAYLOAD_MIGRATING', 'false')
