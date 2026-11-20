@@ -47,8 +47,8 @@ De nye databasekolonnene er bevisst nullable. Kravene håndheves av lagringshook
 slik at gamle rader kan bevares uten oppdiktet sted eller pris. Payloads genererte
 typer gjenspeiler denne overgangen; domenemodellen representerer et komplett kurs.
 
-Offentlige ruter viser bare komplette kurs, også når leseren er innlogget. Innloggede
-brukere kan lese gamle ufullstendige poster i admin/Payloads vanlige ruter og fylle inn
+Offentlige ruter viser bare komplette kurs, også når leseren er innlogget. Administratorer
+kan lese gamle ufullstendige poster i admin/Payloads vanlige ruter og fylle inn
 de riktige verdiene. Kurs som mister lokallagskoblingen skjules også til den er rettet.
 Tilbakeføring av migreringen fjerner sted og pris; UTC-normaliseringen av tidspunkt
 beholdes. Feltene må tas vare på før en eventuell tilbakeføring som trenger disse dataene.

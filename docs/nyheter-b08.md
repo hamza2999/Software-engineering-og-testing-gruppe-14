@@ -33,13 +33,16 @@ Nyhetsmodulen leser lokallagsdata gjennom Payload og er uavhengig av B07s detalj
 ## Publisering og eksisterende data
 
 [Nyheter-samlingen](../Backend/src/collections/Nyheter.ts) bruker `_status` og `publishedAt`.
+En administrator kan opprette et utkast med Payloads vanlige `POST /api/nyheter?draft=true`
+og publisere det med `PATCH /api/nyheter/:id` og `_status: "published"`.
+Skriving går gjennom samlingens tilgangskontroll og publiseringshook.
+Etter publisering blir samme ID tilgjengelig på den offentlige detaljruten.
 Et utkast kan være ufullstendig. Ved publisering kreves blant annet et lokallag.
 Publiseringsdatoen settes automatisk første gang og beholdes ved senere redigering
 og republisering. Datoen kan ikke overskrives gjennom vanlige oppdateringer.
 
-Nyheter som har mistet lokallagskoblingen, skjules i offentlige svar. Innloggede
-brukere kan rette koblingen i admin. Innlogging er foreløpig skillet for tilgang
-til utkast; egne redaktørroller er ikke implementert i prosjektet.
+Nyheter som har mistet lokallagskoblingen, skjules i offentlige svar. En administrator kan rette koblingen i admin og arbeide med utkast og versjonshistorikk.
+Deltakerkontoer har samme offentlige lesevisning som anonyme.
 
 [Migreringen](../Backend/src/migrations/20261105_051419_nyheter_publisering.ts)
 bevarer gamle nyheter og koblinger og gir dem status `draft` og tom publiseringsdato.

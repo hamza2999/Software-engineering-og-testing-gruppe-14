@@ -1,3 +1,4 @@
+import { adminWrites } from '../access/accounts'
 import type { CollectionConfig } from 'payload'
 import {
   lokallagDetailsEndpoint,
@@ -14,6 +15,7 @@ export const Lokallag: CollectionConfig = {
   },
 
   access: {
+    ...adminWrites,
     read: () => true,
   },
 

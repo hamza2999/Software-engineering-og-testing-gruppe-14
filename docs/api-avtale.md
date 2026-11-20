@@ -2,7 +2,7 @@
 
 **Dato:** 2. november 2026
 
-**Sist oppdatert:** 6. november 2026 (B07–B11)
+**Sist oppdatert:** 20. november 2026 (konto- og innholdsrettigheter)
 
 **Status:** Utkast til felles kontrakt for frontend og backend. Gruppens gjennomgang er ikke registrert.
 
@@ -211,8 +211,8 @@ En manglende eller ikke offentlig tilgjengelig nyhet gir `404` med samme feilmel
 
 **Implementert:** Samlingen bruker Payloads utkastfunksjon og feltet `publishedAt`.
 Hooken setter datoen ved første publisering og beholder den ved redigering,
-avpublisering og republisering. Innloggede brukere kan arbeide med utkast gjennom
-admin/Payloads vanlige ruter; anonym lesing og versjonshistorikk er tilgangsstyrt.
+avpublisering og republisering. Administratorer kan arbeide med utkast og lese versjonshistorikk gjennom
+admin og Payloads vanlige ruter. Deltakere leser det samme publiserte innholdet som anonyme.
 De egne offentlige endepunktene filtrerer alltid på publisert status og tidsgrense.
 Se [implementering og kontroll av B08](nyheter-b08.md).
 
@@ -309,7 +309,7 @@ som må angis uttrykkelig når kurset er gratis.
 Databasefeltene for sted og pris er nullable for å bevare eksisterende kurs uten
 å finne på manglende verdier. Offentlige svar inneholder bare komplette kurs,
 også når brukeren er innlogget. Gamle ufullstendige kurs kan leses og kompletteres
-i admin/Payloads vanlige ruter av innloggede brukere. Kurs som mister lokallaget,
+i admin/Payloads vanlige ruter av administratorer. Kurs som mister lokallaget,
 skjules i offentlige svar. Se [implementering og kontroll av B09](kurs-b09.md).
 
 ## 6. Feilsvar

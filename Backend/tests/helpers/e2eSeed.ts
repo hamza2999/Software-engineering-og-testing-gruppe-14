@@ -18,7 +18,11 @@ const payload = await getPayload({ config, key: 'e2e-fixture-seed' })
 try {
   const marker = randomUUID()
   const user = { email: 'nettlesertest@example.test', password: `Test-${randomUUID()}` }
-  await payload.create({ collection: 'users', overrideAccess: true, data: user })
+  await payload.create({
+    collection: 'users',
+    overrideAccess: true,
+    data: { ...user, rolle: 'admin' },
+  })
 
   const makeGroup = async (name: string, region = 'Østfold') => {
     const group = await payload.create({

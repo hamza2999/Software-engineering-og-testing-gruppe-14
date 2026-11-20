@@ -83,7 +83,11 @@ describe('B08: nyhets-API gjennom Payloads HTTP-ruting og egen database', () => 
     }
     ;[lagA, lagB, tomtLag] = ids
     const credentials = { email: 'nyhet-http@example.test', password: 'nyhet-http-test-password' }
-    await payload.create({ collection: 'users', overrideAccess: true, data: credentials })
+    await payload.create({
+      collection: 'users',
+      overrideAccess: true,
+      data: { ...credentials, rolle: 'admin' },
+    })
 
     vi.useFakeTimers({ toFake: ['Date'] })
     try {
@@ -264,6 +268,39 @@ describe('B08: nyhets-API gjennom Payloads HTTP-ruting og egen database', () => 
   it('beskytter versjonshistorikken mot anonyme forespørsler', async () => {
     expect((await request('/versions')).status).toBe(403)
     expect((await request('/versions', true)).status).toBe(200)
+  })
+
+  it('lar redaktøren opprette og publisere via samlingsruten før saken kan leses offentlig', async () => {
+    const headers = { 'Content-Type': 'application/json' }
+    const data = { title: 'Nytt møte', content: 'Velkommen på torsdag.', lokallag: lagA }
+    const create = { method: 'POST', headers, body: JSON.stringify({ ...data, _status: 'draft' }) }
+
+    expect((await request('?draft=true', false, create)).status).toBe(403)
+
+    const created = await request('?draft=true', true, create)
+    expect(created.status).toBe(201)
+    const { doc } = await created.json()
+    try {
+      expect((await request(`/detaljer/${doc.id}`)).status).toBe(404)
+
+      const published = await request(`/${doc.id}`, true, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ _status: 'published' }),
+      })
+      expect(published.status).toBe(200)
+      const details = await request(`/detaljer/${doc.id}`)
+      expect(details.status).toBe(200)
+      expect(await details.json()).toEqual({
+        id: String(doc.id),
+        title: data.title,
+        content: data.content,
+        lokallagId: String(lagA),
+        publishedAt: cutoff,
+      })
+    } finally {
+      await app().delete({ collection: 'nyheter', id: doc.id, overrideAccess: true })
+    }
   })
 
   it('tillater et ufullstendig utkast, men krever lokallag før publisering', async () => {
