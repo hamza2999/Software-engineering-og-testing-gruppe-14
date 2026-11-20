@@ -74,6 +74,7 @@ describe('Nyheter: publisering og lesetilgang', () => {
       collection: 'users',
       overrideAccess: true,
       data: {
+        rolle: 'admin',
         email: 'nyhetstest@example.test',
         password: 'nyheter-test-only-password',
       },

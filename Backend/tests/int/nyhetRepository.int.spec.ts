@@ -71,7 +71,11 @@ describe('PayloadNyhetRepository med egen SQLite-testdatabase', () => {
     editor = await payload.create({
       collection: 'users',
       overrideAccess: true,
-      data: { email: 'nyhet-repository@example.test', password: 'repository-test-only-password' },
+      data: {
+        rolle: 'admin',
+        email: 'nyhet-repository@example.test',
+        password: 'repository-test-only-password',
+      },
     })
 
     vi.useFakeTimers({ toFake: ['Date'] })

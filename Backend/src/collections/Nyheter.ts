@@ -1,3 +1,4 @@
+import { adminWrites, isAdministrator } from '../access/accounts'
 import type { CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
 
 import { nyhetDetailsEndpoint, nyhetOverviewEndpoint } from '../modules/nyheter/http/nyhetEndpoints'
@@ -29,9 +30,10 @@ export const Nyheter: CollectionConfig = {
   },
 
   access: {
-    readVersions: ({ req }) => Boolean(req.user),
+    ...adminWrites,
+    readVersions: isAdministrator,
     read: ({ req }): boolean | Where => {
-      if (req.user) {
+      if (isAdministrator({ req })) {
         return true
       }
 

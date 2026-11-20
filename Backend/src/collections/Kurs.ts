@@ -1,3 +1,4 @@
+import { adminWrites, isAdministrator } from '../access/accounts'
 import {
   ValidationError,
   type CollectionBeforeValidateHook,
@@ -70,7 +71,9 @@ export const Kurs: CollectionConfig = {
   },
 
   access: {
-    read: ({ req }): boolean | Where => (req.user ? true : { and: completeKursFilters() }),
+    ...adminWrites,
+    read: ({ req }): boolean | Where =>
+      isAdministrator({ req }) ? true : { and: completeKursFilters() },
   },
 
   hooks: { beforeValidate: [validateCourseDetails] },
