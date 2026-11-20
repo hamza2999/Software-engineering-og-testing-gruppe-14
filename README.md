@@ -35,6 +35,19 @@ kommende kurs endrer seg over tid. Se [testdata og separat testdatabase](docs/te
 En gammel database opprettet med automatisk skjemapush kan ikke uten videre
 kjøre den første migreringen, som oppretter tabellene på nytt.
 
+### Prøve e-post i en testpostkasse
+
+Med `EMAIL_TRANSPORT=console` (standard) registrerer Payload e-postforsøk i
+serverloggen. For å motta testmeldinger, start en lokal testpostkasse som
+Mailpit, sett `EMAIL_TRANSPORT=smtp`, `SMTP_HOST=127.0.0.1` og `SMTP_PORT=1025`
+i `Backend/.env`, og start backend på nytt. Bruk en fiktiv testkonto til å
+prøve «Glemt passord» og les meldingen i testpostkassen.
+
+For en ekstern SMTP-testtjeneste settes vert, port, `SMTP_FROM_ADDRESS` og
+eventuelt `SMTP_USER` og `SMTP_PASS` i servermiljøet. Port 465 bruker TLS
+fra starten, andre porter utenfor loopback krever STARTTLS. Tilkoblingen
+åpnes først når det faktisk skal sendes en melding.
+
 ## Starte løsningen
 
 Kjør fra repo-roten i hver sin terminal:
