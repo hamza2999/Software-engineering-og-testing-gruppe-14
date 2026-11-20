@@ -2,21 +2,26 @@ import { APIError, type CollectionConfig } from 'payload'
 
 import { adminOrSelf, isAdministrator } from '../access/accounts'
 
+function resetPageURL(): URL {
+  try {
+    const server = new URL(process.env.PAYLOAD_PUBLIC_SERVER_URL ?? '')
+    if (server.protocol === 'https:' || server.protocol === 'http:') {
+      return new URL('/tilbakestill-passord', server.origin)
+    }
+  } catch {
+    // Samme feilstatus for alle kontoer når serveradressen mangler eller er ugyldig.
+  }
+  throw new APIError('Passordtilbakestilling er ikke konfigurert.', 503)
+}
+
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: { useAsTitle: 'email' },
   auth: {
     forgotPassword: {
       generateEmailHTML: (args) => {
-        const configuredOrigin = process.env.PAYLOAD_PUBLIC_SERVER_URL
-        if (!configuredOrigin || !args?.token) {
-          throw new Error('Passordlenken krever PAYLOAD_PUBLIC_SERVER_URL og et gyldig token.')
-        }
-        const server = new URL(configuredOrigin)
-        if (!['https:', 'http:'].includes(server.protocol)) {
-          throw new Error('PAYLOAD_PUBLIC_SERVER_URL må være en HTTP(S)-adresse.')
-        }
-        const resetURL = new URL('/tilbakestill-passord', server.origin)
+        if (!args?.token) throw new Error('Passordlenken mangler token.')
+        const resetURL = resetPageURL()
         // Fragmentet sendes ikke med i HTTP-adressen til webserveren.
         resetURL.hash = new URLSearchParams({ token: args.token }).toString()
 
@@ -34,7 +39,9 @@ export const Users: CollectionConfig = {
   },
   hooks: {
     beforeOperation: [
-      ({ operation, overrideAccess, req }) => {
+      ({ operation, overrideAccess, req, args }) => {
+        if (operation === 'forgotPassword' && !args.disableEmail) resetPageURL()
+
         // Payloads offentlige førstegangsveiviser bruker intern create med overrideAccess.
         // Første administrator opprettes eksplisitt via lokal CLI også på en ny database.
         if (
