@@ -48,7 +48,7 @@ npm run dev:frontend
 ```
 
 Åpne frontend på `http://localhost:5173` og admin på `http://localhost:3000/admin`.
-Opprett første adminbruker i Payload hvis databasen er ny. `npm run dev` starter
+Opprett en administratorkonto lokalt etter [konto- og passordveiledningen](docs/konto-og-passord.md) hvis databasen er ny. `npm run dev` starter
 også frontend. Frontend videresender `/api` til backend på port 3000.
 
 Hvis backend har en annen adresse, opprett `Frontend/.env` fra

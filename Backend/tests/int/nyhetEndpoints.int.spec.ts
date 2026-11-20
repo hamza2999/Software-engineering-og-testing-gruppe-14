@@ -83,7 +83,11 @@ describe('B08: nyhets-API gjennom Payloads HTTP-ruting og egen database', () => 
     }
     ;[lagA, lagB, tomtLag] = ids
     const credentials = { email: 'nyhet-http@example.test', password: 'nyhet-http-test-password' }
-    await payload.create({ collection: 'users', overrideAccess: true, data: credentials })
+    await payload.create({
+      collection: 'users',
+      overrideAccess: true,
+      data: { ...credentials, rolle: 'admin' },
+    })
 
     vi.useFakeTimers({ toFake: ['Date'] })
     try {

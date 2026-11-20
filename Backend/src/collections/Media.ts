@@ -1,8 +1,10 @@
+import { adminWrites } from '../access/accounts'
 import type { CollectionConfig } from 'payload'
 
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
+    ...adminWrites,
     read: () => true,
   },
   fields: [

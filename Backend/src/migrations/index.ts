@@ -1,6 +1,7 @@
 import * as migration_20261017_002154_initial_schema from './20261017_002154_initial_schema';
 import * as migration_20261105_051419_nyheter_publisering from './20261105_051419_nyheter_publisering';
 import * as migration_20261106_065533_kurs_sted_pris from './20261106_065533_kurs_sted_pris';
+import * as migration_20261120_132004_brukerroller from './20261120_132004_brukerroller';
 
 export const migrations = [
   {
@@ -16,6 +17,11 @@ export const migrations = [
   {
     up: migration_20261106_065533_kurs_sted_pris.up,
     down: migration_20261106_065533_kurs_sted_pris.down,
-    name: '20261106_065533_kurs_sted_pris'
+    name: '20261106_065533_kurs_sted_pris',
+  },
+  {
+    up: migration_20261120_132004_brukerroller.up,
+    down: migration_20261120_132004_brukerroller.down,
+    name: '20261120_132004_brukerroller'
   },
 ];

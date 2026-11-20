@@ -122,7 +122,11 @@ describe('B09: kurs gjennom HTTP-ruting og egen SQLite-testdatabase', () => {
     }
     ;[lagA, lagB, tomtLag] = ids
     const credentials = { email: 'kurs-http@example.test', password: 'kurs-http-test-password' }
-    editor = await payload.create({ collection: 'users', overrideAccess: true, data: credentials })
+    editor = await payload.create({
+      collection: 'users',
+      overrideAccess: true,
+      data: { ...credentials, rolle: 'admin' },
+    })
 
     vi.useFakeTimers({ toFake: ['Date'] })
     try {
